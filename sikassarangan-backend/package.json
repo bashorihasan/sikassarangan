@@ -1,0 +1,25 @@
+{
+  "name": "sikassarangan-backend",
+  "version": "1.0.0",
+  "description": "Backend API untuk aplikasi pencatatan transaksi kas siKasSarangan",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": [
+    "express",
+    "postgres",
+    "sikassarangan",
+    "kas",
+    "rt"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "pg": "^8.13.1"
+  }
+}

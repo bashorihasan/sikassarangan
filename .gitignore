@@ -1,0 +1,16 @@
+sikassarangan-backend/.env
+sikassarangan/.env
+
+sikassarangan-backend/node_modules/
+sikassarangan/node_modules/
+
+sikassarangan-backend/coverage/
+sikassarangan/coverage/
+
+sikassarangan-backend/dist/
+sikassarangan-backend/build/
+sikassarangan/build/
+
+sikassarangan-backend/.dart_tool/
+sikassarangan/.dart_tool/
+sikassarangan/.flutter-plugins-dependencies
