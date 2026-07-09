@@ -1,32 +1,33 @@
-const express = require('express');
-const cors = require('cors');
 require('dotenv').config();
 
+const cors = require('cors');
+const express = require('express');
+
 const transaksiRoutes = require('./routes/transaksi.routes');
-const { initializeDatabase, closeDatabase } = require('./config/db');
+const { prisma, resolveDatabaseUrl } = require('./lib/prisma');
+const { redisClient } = require('./lib/redis');
 
 const app = express();
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.API_PORT || process.env.PORT || 3001);
 let server;
 
-function buildCorsOptions() {
-  const corsOrigin = process.env.CORS_ORIGIN;
+async function connectServices() {
+  resolveDatabaseUrl();
 
-  if (!corsOrigin || corsOrigin === '*') {
-    return undefined;
+  await prisma.$connect();
+
+  try {
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+    }
+  } catch (error) {
+    console.warn('Redis tidak tersedia saat startup, cache summary akan dinonaktifkan sementara:', error.message);
   }
-
-  return {
-    origin: corsOrigin
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean),
-  };
 }
 
 app.disable('x-powered-by');
-app.use(cors(buildCorsOptions()));
-app.use(express.json());
+app.use(cors());
+app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', (req, res) => {
   res.json({
@@ -62,7 +63,7 @@ app.use((err, req, res, next) => {
 
 async function startServer() {
   try {
-    await initializeDatabase();
+    await connectServices();
 
     server = app.listen(port, () => {
       console.log(`siKasSarangan backend berjalan di port ${port}`);
@@ -80,7 +81,15 @@ async function shutdown(signal) {
     await new Promise((resolve) => server.close(resolve));
   }
 
-  await closeDatabase();
+  try {
+    if (redisClient.isOpen) {
+      await redisClient.quit();
+    }
+  } catch (error) {
+    console.warn('Gagal menutup Redis dengan bersih:', error.message);
+  }
+
+  await prisma.$disconnect();
   process.exit(0);
 }
 

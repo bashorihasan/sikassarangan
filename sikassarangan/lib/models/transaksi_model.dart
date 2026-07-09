@@ -7,7 +7,6 @@ class Transaksi {
     required this.status,
     required this.namaPihak,
     this.createdAt,
-    this.updatedAt,
   });
 
   final int? id;
@@ -17,18 +16,20 @@ class Transaksi {
   final String status;
   final String namaPihak;
   final DateTime? createdAt;
-  final DateTime? updatedAt;
+
+  bool get isKasMasuk => jenisTransaksi == 'KAS_MASUK';
+
+  bool get isKasKeluar => jenisTransaksi == 'KAS_KELUAR';
 
   factory Transaksi.fromJson(Map<String, dynamic> json) {
     return Transaksi(
-      id: json['id'] as int?,
-      namaTransaksi: (json['nama_transaksi'] ?? '') as String,
+      id: _parseInt(json['id']),
+      namaTransaksi: (json['nama_transaksi'] ?? '').toString(),
       nominal: _parseNominal(json['nominal']),
-      jenisTransaksi: (json['jenis_transaksi'] ?? '') as String,
-      status: (json['status'] ?? '') as String,
-      namaPihak: (json['nama_pihak'] ?? '') as String,
+      jenisTransaksi: (json['jenis_transaksi'] ?? '').toString(),
+      status: (json['status'] ?? '').toString(),
+      namaPihak: (json['nama_pihak'] ?? '').toString(),
       createdAt: _parseDateTime(json['created_at']),
-      updatedAt: _parseDateTime(json['updated_at']),
     );
   }
 
@@ -50,7 +51,6 @@ class Transaksi {
     String? status,
     String? namaPihak,
     DateTime? createdAt,
-    DateTime? updatedAt,
   }) {
     return Transaksi(
       id: id ?? this.id,
@@ -60,8 +60,15 @@ class Transaksi {
       status: status ?? this.status,
       namaPihak: namaPihak ?? this.namaPihak,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+
+    return int.tryParse(value?.toString() ?? '');
   }
 
   static double _parseNominal(dynamic value) {

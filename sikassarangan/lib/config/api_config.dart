@@ -2,7 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConfig {
   static String get baseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://158.178.230.62:3000/api';
+  dotenv.env['API_BASE_URL'] ?? 'http://158.178.230.62:3001/api';
 
   static String get apiKey => dotenv.env['API_KEY'] ?? '';
 
@@ -17,6 +17,6 @@ class ApiConfig {
   static Map<String, String> get headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        if (apiKey.isNotEmpty) 'x-api-key': apiKey,
+      'x-api-key': apiKey,
       };
 }

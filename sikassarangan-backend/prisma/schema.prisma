@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JenisTransaksi {
+  KAS_MASUK
+  KAS_KELUAR
+}
+
+enum StatusTransaksi {
+  REIMBURSE
+  LUNAS
+  PENDING
+}
+
+model Transaksi {
+  id             Int              @id @default(autoincrement())
+  namaTransaksi  String           @db.VarChar(255)
+  nominal        Decimal          @db.Decimal(15, 2)
+  jenisTransaksi JenisTransaksi
+  status         StatusTransaksi
+  namaPihak      String           @db.VarChar(255)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("transaksi")
+}

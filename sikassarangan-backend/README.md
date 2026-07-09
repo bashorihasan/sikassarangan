@@ -1,42 +1,100 @@
 # siKasSarangan Backend
 
-Backend Node.js + Express untuk pencatatan transaksi kas kegiatan RT/panitia seperti HUT RI atau PHBN.
+Backend Node.js + Express untuk pencatatan transaksi kas kegiatan RT/panitia seperti HUT RI dan PHBN, sekarang memakai Prisma ORM dan Redis cache.
 
 ## Tech Stack
 
 - Node.js
 - Express
+- Prisma ORM
 - PostgreSQL
+- Redis
 - Docker + Docker Compose
-- `pg`
-- `dotenv`
+- `zod`
 - `cors`
-- `express-validator`
+- `dotenv`
 
 ## Struktur Data
 
-Tabel `transaksi` disiapkan otomatis saat aplikasi pertama kali berjalan:
+Model Prisma `Transaksi`:
 
 - `id` auto increment primary key
-- `nama_transaksi` wajib diisi
-- `nominal` wajib diisi
-- `jenis_transaksi` enum `KAS_MASUK` / `KAS_KELUAR`
+- `namaTransaksi` string, maksimal 255 karakter
+- `nominal` decimal 15,2
+- `jenisTransaksi` enum `KAS_MASUK` / `KAS_KELUAR`
 - `status` enum `REIMBURSE` / `LUNAS` / `PENDING`
-- `nama_pihak` wajib diisi
-- `created_at` default `NOW()`
-- `updated_at` default `NOW()` dan otomatis diperbarui saat update
+- `namaPihak` string, maksimal 255 karakter
+- `createdAt` default `now()`
+- `updatedAt` otomatis saat update
 
-## Persiapan
+Tabel database di-map ke `transaksi` dengan `@@map("transaksi")`.
 
-1. Masuk ke folder project:
+## Environment Variable
 
-```bash
-cd sikassarangan-backend
+Gunakan `.env` berikut:
+
+```env
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=sikassarangan
+DB_USER=sikassarangan_user
+DB_PASSWORD=...
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=...
+API_KEY=...
+API_PORT=3001
+DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public
 ```
 
-2. Pastikan file `.env` sudah ada. File ini sudah disediakan dengan nilai awal, silakan sesuaikan jika perlu.
+## Endpoint API
 
-3. Pastikan Docker Desktop sudah berjalan.
+- `GET /api/transaksi` - support query `status`, `jenis`, `search`
+- `GET /api/transaksi/:id`
+- `POST /api/transaksi`
+- `PUT /api/transaksi/:id`
+- `DELETE /api/transaksi/:id`
+- `GET /api/transaksi/summary`
+
+Endpoint mutating wajib mengirim header:
+
+```http
+x-api-key: <API_KEY>
+```
+
+## Docker
+
+Dockerfile menjalankan `npx prisma generate` saat build, lalu container start menjalankan migrasi deploy sebelum server aktif.
+
+## Pertama Kali Menjalankan
+
+1. Isi `.env` sesuai environment lokal atau Docker.
+2. Install dependency:
+
+```bash
+npm install
+```
+
+3. Jika ingin membuat migrasi dari host Windows, jalankan database dulu lalu override `DATABASE_URL` ke port host Docker (`127.0.0.1:5433`), misalnya:
+
+```powershell
+$env:DATABASE_URL="postgresql://sikassarangan_user:sikassarangan_password@127.0.0.1:5433/sikassarangan?schema=public"
+npx prisma migrate dev --name init
+```
+
+Jika ingin jalur Docker penuh, langkah ini bisa dilewati karena image API akan menjalankan `prisma migrate deploy` saat start.
+
+4. Generate Prisma Client jika belum otomatis terbuat:
+
+```bash
+npx prisma generate
+```
+
+5. Jalankan backend:
+
+```bash
+npm run dev
+```
 
 ## Menjalankan dengan Docker
 
@@ -44,77 +102,8 @@ cd sikassarangan-backend
 docker compose up -d --build
 ```
 
-Cek log API:
+## Catatan
 
-```bash
-docker compose logs -f api
-```
-
-## Environment Variable
-
-Gunakan file `.env` untuk konfigurasi runtime. Template ada di `.env.example`.
-
-Contoh isi:
-
-```env
-PORT=3000
-DB_HOST=db
-DB_PORT=5432
-DB_USER=sikassarangan_user
-DB_PASSWORD=change-this-password
-DB_NAME=sikassarangan_db
-API_KEY=change-this-api-key
-CORS_ORIGIN=*
-```
-
-## Auth API Key
-
-Endpoint berikut wajib menyertakan header:
-
-```http
-x-api-key: change-this-api-key
-```
-
-Endpoint yang dilindungi:
-
-- `POST /api/transaksi`
-- `PUT /api/transaksi/:id`
-- `DELETE /api/transaksi/:id`
-
-## Endpoint API
-
-- `GET /api/transaksi`
-- `GET /api/transaksi/:id`
-- `POST /api/transaksi`
-- `PUT /api/transaksi/:id`
-- `DELETE /api/transaksi/:id`
-- `GET /api/transaksi/summary`
-
-## Contoh Request
-
-### Tambah transaksi
-
-```bash
-curl -X POST http://localhost:3000/api/transaksi \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: change-this-api-key" \
-  -d '{
-    "nama_transaksi": "Iuran HUT RI",
-    "nominal": 500000,
-    "jenis_transaksi": "KAS_MASUK",
-    "status": "LUNAS",
-    "nama_pihak": "Warga RT 05"
-  }'
-```
-
-### Ringkasan kas
-
-```bash
-curl http://localhost:3000/api/transaksi/summary
-```
-
-## Catatan Docker
-
-- Service database hanya dibind ke `127.0.0.1` pada host, jadi tidak diekspos langsung ke publik.
-- API menunggu database siap sebelum start.
-- Data PostgreSQL disimpan di volume persisten `postgres_data`.
+- Redis dipakai untuk cache `/api/transaksi/summary` selama 60 detik.
+- Prisma Client dibuat sebagai singleton di `src/lib/prisma.js`.
+- CORS dibuka untuk semua origin agar bisa dipakai oleh aplikasi mobile.

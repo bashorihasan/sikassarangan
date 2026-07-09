@@ -11,12 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
 
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => TransaksiProvider(TransaksiService())..loadDashboard(),
-      child: const SiKasSaranganApp(),
-    ),
-  );
+  runApp(const SiKasSaranganApp());
 }
 
 class SiKasSaranganApp extends StatelessWidget {
@@ -24,11 +19,14 @@ class SiKasSaranganApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'siKasSarangan',
-      theme: AppTheme.lightTheme,
-      home: const HomeScreen(),
+    return ChangeNotifierProvider(
+      create: (_) => TransaksiProvider(TransaksiService())..loadDashboard(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'siKasSarangan',
+        theme: AppTheme.lightTheme,
+        home: const HomeScreen(),
+      ),
     );
   }
 }

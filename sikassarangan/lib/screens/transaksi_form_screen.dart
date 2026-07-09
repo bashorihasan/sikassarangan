@@ -62,12 +62,10 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? 'Edit Transaksi' : 'Tambah Transaksi'),
-        backgroundColor: AppColors.primaryBrown,
-        foregroundColor: Colors.white,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: Column(
@@ -75,14 +73,21 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
               children: [
                 Text(
                   _isEdit ? 'Perbarui data transaksi' : 'Isi transaksi kas baru',
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: const TextStyle(
+                    color: AppColors.textCardTitle,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Pastikan nominal dan status sudah sesuai sebelum disimpan.',
-                  style: TextStyle(color: Color(0xFF766355)),
+                  style: TextStyle(
+                    color: AppColors.textSecondaryBrown,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
                 TextFormField(
                   controller: _namaTransaksiController,
                   textInputAction: TextInputAction.next,
@@ -92,7 +97,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                   ),
                   validator: _requiredValidator,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _nominalController,
                   keyboardType: TextInputType.number,
@@ -115,7 +120,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: _jenisTransaksi,
                   items: const [
@@ -137,7 +142,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                     labelText: 'Jenis Transaksi',
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: _status,
                   items: const [
@@ -154,7 +159,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                     labelText: 'Status',
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _namaPihakController,
                   textInputAction: TextInputAction.done,
@@ -164,7 +169,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                   ),
                   validator: _requiredValidator,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -175,7 +180,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                             height: 18,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: AppColors.primaryBrown,
                             ),
                           )
                         : const Icon(Icons.save_outlined),
@@ -188,12 +193,13 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(16),
+                      color: AppColors.surfaceWhite,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cashOutRed.withValues(alpha: 0.2)),
                     ),
                     child: Text(
                       provider.errorMessage,
-                      style: const TextStyle(color: Colors.redAccent),
+                      style: const TextStyle(color: AppColors.cashOutRed),
                     ),
                   ),
                 ],
@@ -234,7 +240,6 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
       status: _status,
       namaPihak: _namaPihakController.text.trim(),
       createdAt: widget.transaksi?.createdAt,
-      updatedAt: widget.transaksi?.updatedAt,
     );
 
     final provider = context.read<TransaksiProvider>();

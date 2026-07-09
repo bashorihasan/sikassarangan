@@ -17,6 +17,7 @@ class TransaksiProvider extends ChangeNotifier {
   String _errorMessage = '';
   String _searchQuery = '';
   String _statusFilter = '';
+  String _namaPihakFilter = '';
 
   List<Transaksi> get transaksi => List.unmodifiable(_transaksi);
   double get totalKasMasuk => _totalKasMasuk;
@@ -27,6 +28,7 @@ class TransaksiProvider extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   String get searchQuery => _searchQuery;
   String get statusFilter => _statusFilter;
+  String get namaPihakFilter => _namaPihakFilter;
 
   List<Transaksi> get filteredTransaksi {
     final query = _searchQuery.trim().toLowerCase();
@@ -38,8 +40,12 @@ class TransaksiProvider extends ChangeNotifier {
           transaksi.status.toLowerCase().contains(query);
       final matchesStatus =
           _statusFilter.isEmpty || transaksi.status == _statusFilter;
+      final matchesNamaPihak = _namaPihakFilter.isEmpty ||
+          transaksi.namaPihak
+              .toLowerCase()
+              .contains(_namaPihakFilter.trim().toLowerCase());
 
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus && matchesNamaPihak;
     }).toList();
   }
 
@@ -56,9 +62,15 @@ class TransaksiProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setNamaPihakFilter(String value) {
+    _namaPihakFilter = value;
+    notifyListeners();
+  }
+
   void clearFilters() {
     _searchQuery = '';
     _statusFilter = '';
+    _namaPihakFilter = '';
     notifyListeners();
   }
 

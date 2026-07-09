@@ -11,17 +11,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sikassarangan/main.dart';
 
 void main() {
-  testWidgets('siKasSarangan app renders', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('siKasSarangan dashboard renders', (WidgetTester tester) async {
     await tester.pumpWidget(const SiKasSaranganApp());
 
     await tester.pump();
 
-    // Verify the main app shell appears.
-    expect(find.text('siKasSarangan'), findsOneWidget);
-
-    // Tap the refresh icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.refresh_rounded));
-    await tester.pump();
+    expect(find.text('Selamat datang,'), findsOneWidget);
+    expect(find.text('Bendahara RT'), findsOneWidget);
+    expect(find.byIcon(Icons.add_rounded), findsOneWidget);
   });
 }

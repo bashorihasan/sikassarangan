@@ -45,8 +45,6 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
-        backgroundColor: AppColors.primaryBrown,
-        foregroundColor: Colors.white,
       ),
       body: FutureBuilder<Transaksi>(
         future: _futureTransaksi,
@@ -71,27 +69,17 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(22),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primaryBrown, AppColors.deepBrown],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryBrown.withValues(alpha: 0.2),
-                        blurRadius: 18,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+                    color: AppColors.surfaceWhite,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.borderSoft, width: 0.5),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,42 +87,49 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
                       const Text(
                         'Rincian Transaksi',
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: AppColors.textSecondaryBrown,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         transaksi.namaTransaksi,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                            ),
+                        style: const TextStyle(
+                          color: AppColors.textCardTitle,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 10),
                       Text(
                         _currencyFormat.format(transaksi.nominal),
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.primaryBrown,
                           fontSize: 28,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: [
                           StatusBadge(
-                            label: transaksi.jenisTransaksi,
-                            backgroundColor: transaksi.jenisTransaksi == 'KAS_MASUK'
-                                ? AppColors.success
-                                : AppColors.brickRed,
+                            label: transaksi.isKasMasuk ? 'KAS MASUK' : 'KAS KELUAR',
+                            backgroundColor: transaksi.isKasMasuk
+                                ? AppColors.lunasBackground
+                                : AppColors.reimburseBackground,
+                            foregroundColor: transaksi.isKasMasuk
+                                ? AppColors.lunasText
+                                : AppColors.reimburseText,
+                            icon: transaksi.isKasMasuk
+                                ? Icons.keyboard_arrow_down_rounded
+                                : Icons.keyboard_arrow_up_rounded,
                           ),
                           StatusBadge(
                             label: transaksi.status,
-                            backgroundColor: _statusColor(transaksi.status),
+                            backgroundColor: _statusBackground(transaksi.status),
                             foregroundColor: _statusForeground(transaksi.status),
                           ),
                         ],
@@ -142,17 +137,16 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
                 _InfoPanel(
                   title: 'Detail Lengkap',
                   children: [
                     _InfoRow(label: 'Nama Pihak', value: transaksi.namaPihak),
                     _InfoRow(label: 'ID', value: transaksi.id?.toString() ?? '-'),
                     _InfoRow(label: 'Dibuat', value: _formatDate(transaksi.createdAt)),
-                    _InfoRow(label: 'Diperbarui', value: _formatDate(transaksi.updatedAt)),
                   ],
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -170,11 +164,14 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
                         },
                         icon: const Icon(Icons.edit_outlined),
                         label: const Text('Edit'),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.accentGold, width: 1),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: OutlinedButton.icon(
                         onPressed: provider.isSubmitting ? null : () => _deleteTransaksi(transaksi),
                         icon: provider.isSubmitting
                             ? const SizedBox(
@@ -182,12 +179,15 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
                                 height: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white,
+                                  color: AppColors.cashOutRed,
                                 ),
                               )
                             : const Icon(Icons.delete_outline),
                         label: Text(provider.isSubmitting ? 'Menghapus...' : 'Hapus'),
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.brickRed),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.cashOutRed,
+                          side: const BorderSide(color: AppColors.cashOutRed, width: 1),
+                        ),
                       ),
                     ),
                   ],
@@ -221,7 +221,10 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.brickRed),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cashOutRed,
+                foregroundColor: AppColors.textOnBrown,
+              ),
               child: const Text('Hapus'),
             ),
           ],
@@ -253,21 +256,33 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
   Color _statusColor(String status) {
     switch (status) {
       case 'REIMBURSE':
-        return AppColors.reimburse;
+        return AppColors.reimburseBackground;
       case 'LUNAS':
-        return AppColors.success;
+        return AppColors.lunasBackground;
       default:
-        return AppColors.pending;
+        return AppColors.pendingBackground;
+    }
+  }
+
+  Color _statusBackground(String status) {
+    switch (status) {
+      case 'REIMBURSE':
+        return AppColors.reimburseBackground;
+      case 'LUNAS':
+        return AppColors.lunasBackground;
+      default:
+        return AppColors.pendingBackground;
     }
   }
 
   Color _statusForeground(String status) {
     switch (status) {
       case 'REIMBURSE':
-        return AppColors.primaryBrown;
+        return AppColors.reimburseText;
       case 'LUNAS':
+        return AppColors.lunasText;
       default:
-        return Colors.white;
+        return AppColors.pendingText;
     }
   }
 
@@ -292,18 +307,19 @@ class _InfoPanel extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE6D8C6)),
+        color: AppColors.surfaceWhite,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSoft, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: const TextStyle(
+              color: AppColors.textCardTitle,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 14),
           ...children,
@@ -331,8 +347,8 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF7C6758),
-                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryBrown,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),
@@ -341,8 +357,8 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                color: Color(0xFF2B1B11),
-                fontWeight: FontWeight.w600,
+                color: AppColors.textCardTitle,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -366,7 +382,7 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 54, color: Colors.redAccent),
+            const Icon(Icons.error_outline, size: 54, color: AppColors.cashOutRed),
             const SizedBox(height: 16),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),

@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "127.0.0.1:5433:5432"     # ← diubah, host pakai 5433
+      - "127.0.0.1:5433:5432"
     volumes:
       - sikassarangan_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -16,45 +16,38 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - sikassarangan-net
 
   redis:
     image: redis:7-alpine
     container_name: sikassarangan-redis
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --save 60 1 --loglevel warning
     ports:
-      - "127.0.0.1:6380:6379"     # ← diubah, host pakai 6380
+      - "127.0.0.1:6380:6379"
     volumes:
       - sikassarangan_redisdata:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - sikassarangan-net
 
   api:
     build: .
     container_name: sikassarangan-api
     restart: unless-stopped
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public
     ports:
-      - "${API_PORT}:3000"
+      - "${API_PORT}:3001"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - sikassarangan-net
+
 
 volumes:
   sikassarangan_pgdata:
   sikassarangan_redisdata:
-
-networks:
-  sikassarangan-net:
-    name: sikassarangan-net

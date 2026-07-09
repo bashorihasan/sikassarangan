@@ -64,11 +64,16 @@ class TransaksiService {
       }
 
       throw ApiException(
-        _extractMessage(decoded, fallback: 'Server merespons dengan status ${response.statusCode}'),
+        _extractMessage(
+          decoded,
+          fallback: 'Server merespons dengan status ${response.statusCode}',
+        ),
         statusCode: response.statusCode,
       );
     } on SocketException {
-      throw ApiException('Tidak dapat terhubung ke server. Periksa koneksi internet atau backend.');
+      throw ApiException(
+        'Tidak dapat terhubung ke server. Periksa koneksi internet atau backend.',
+      );
     } on HttpException {
       throw ApiException('Gagal memproses respon dari server.');
     } on FormatException {
@@ -83,11 +88,10 @@ class TransaksiService {
       () => _client.get(_uri('/transaksi'), headers: _headers()),
     );
 
-    final items = (data['data'] as List<dynamic>? ?? const <dynamic>[]);
+    final items = data['data'] as List<dynamic>? ?? const <dynamic>[];
     return items
-        .cast<Map<String, dynamic>>()
-        .map(Transaksi.fromJson)
-        .toList();
+      .map((item) => Transaksi.fromJson(item as Map<String, dynamic>))
+      .toList(growable: false);
   }
 
   Future<Transaksi> getTransaksiById(int id) async {

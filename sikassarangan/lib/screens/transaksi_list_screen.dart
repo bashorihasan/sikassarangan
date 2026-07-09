@@ -6,8 +6,23 @@ import '../theme/app_theme.dart';
 import '../widgets/transaksi_card.dart';
 import 'transaksi_detail_screen.dart';
 
-class TransaksiListScreen extends StatelessWidget {
+class TransaksiListScreen extends StatefulWidget {
   const TransaksiListScreen({super.key});
+
+  @override
+  State<TransaksiListScreen> createState() => _TransaksiListScreenState();
+}
+
+class _TransaksiListScreenState extends State<TransaksiListScreen> {
+  final _searchController = TextEditingController();
+  final _namaPihakController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _namaPihakController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,24 +31,46 @@ class TransaksiListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Semua Transaksi'),
-        backgroundColor: AppColors.primaryBrown,
-        foregroundColor: Colors.white,
       ),
       body: RefreshIndicator(
-        onRefresh: () => context.read<TransaksiProvider>().loadTransaksi(),
+        color: AppColors.accentGold,
+        backgroundColor: AppColors.surfaceWhite,
+        onRefresh: () async {
+          await context.read<TransaksiProvider>().loadTransaksi();
+          if (context.mounted && provider.errorMessage.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(provider.errorMessage)),
+            );
+          }
+        },
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
-            Text(
+            const Text(
               'Daftar transaksi kas',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: TextStyle(
+                color: AppColors.textCardTitle,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _searchController,
+              onChanged: context.read<TransaksiProvider>().setSearchQuery,
+              decoration: const InputDecoration(
+                labelText: 'Cari transaksi, status, atau pihak',
+                prefixIcon: Icon(Icons.search_rounded),
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
-              onChanged: context.read<TransaksiProvider>().setSearchQuery,
+              controller: _namaPihakController,
+              onChanged: context.read<TransaksiProvider>().setNamaPihakFilter,
               decoration: const InputDecoration(
-                labelText: 'Cari nama pihak / nama transaksi / status',
-                prefixIcon: Icon(Icons.search),
+                labelText: 'Filter nama pihak',
+                prefixIcon: Icon(Icons.badge_outlined),
               ),
             ),
             const SizedBox(height: 12),
@@ -51,38 +88,40 @@ class TransaksiListScreen extends StatelessWidget {
                 context.read<TransaksiProvider>().setStatusFilter(value ?? '');
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
-                onPressed: context.read<TransaksiProvider>().clearFilters,
-                icon: const Icon(Icons.filter_alt_off),
-                label: const Text('Reset Filter'),
+                onPressed: () {
+                  _searchController.clear();
+                  _namaPihakController.clear();
+                  context.read<TransaksiProvider>().clearFilters();
+                },
+                icon: const Icon(Icons.filter_alt_off_rounded),
+                label: const Text('Reset filter'),
               ),
             ),
             const SizedBox(height: 8),
-            if (provider.isLoading)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 80),
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (provider.errorMessage.isNotEmpty && provider.filteredTransaksi.isEmpty)
+            if (provider.errorMessage.isNotEmpty && provider.filteredTransaksi.isEmpty)
               _ErrorBlock(
                 message: provider.errorMessage,
-                onRetry: () => context.read<TransaksiProvider>().loadTransaksi(),
+                onRetry: () async {
+                  await context.read<TransaksiProvider>().loadTransaksi();
+                },
               )
             else if (provider.filteredTransaksi.isEmpty)
-              _EmptyBlock(
-                title: 'Belum ada transaksi',
-                subtitle: 'Data transaksi akan tampil di sini setelah ditambahkan.',
-              )
+              const _EmptyBlock()
             else
               ...provider.filteredTransaksi.map(
                 (transaksi) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: TransaksiCard(
                     transaksi: transaksi,
                     onTap: () async {
+                      if (transaksi.id == null) {
+                        return;
+                      }
+
                       final updated = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
@@ -107,28 +146,24 @@ class TransaksiListScreen extends StatelessWidget {
 }
 
 class _EmptyBlock extends StatelessWidget {
-  const _EmptyBlock({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
+  const _EmptyBlock();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.75),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2D4C4)),
+        color: AppColors.surfaceWhite,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSoft, width: 0.5),
       ),
-      child: Column(
-        children: [
-          const Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.goldSoft),
-          const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          Text(subtitle, textAlign: TextAlign.center),
-        ],
+      child: const Text(
+        'Belum ada transaksi.',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: AppColors.textSecondaryBrown,
+          fontWeight: FontWeight.w400,
+        ),
       ),
     );
   }
@@ -138,23 +173,31 @@ class _ErrorBlock extends StatelessWidget {
   const _ErrorBlock({required this.message, required this.onRetry});
 
   final String message;
-  final VoidCallback onRetry;
+  final Future<void> Function() onRetry;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.surfaceWhite,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cashOutRed.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
-          const Icon(Icons.cloud_off_outlined, size: 48, color: Colors.redAccent),
+          const Icon(Icons.cloud_off_rounded, size: 48, color: AppColors.cashOutRed),
           const SizedBox(height: 12),
-          Text(message, textAlign: TextAlign.center),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.textCardTitle,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
           const SizedBox(height: 12),
-          ElevatedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
+          OutlinedButton(onPressed: onRetry, child: const Text('Coba lagi')),
         ],
       ),
     );

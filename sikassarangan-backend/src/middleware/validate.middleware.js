@@ -1,65 +1,67 @@
-const { body, param, validationResult } = require('express-validator');
+const { z } = require('zod');
 
-const allowedJenisTransaksi = ['KAS_MASUK', 'KAS_KELUAR'];
-const allowedStatus = ['REIMBURSE', 'LUNAS', 'PENDING'];
+const jenisTransaksiEnum = z.enum(['KAS_MASUK', 'KAS_KELUAR']);
+const statusTransaksiEnum = z.enum(['REIMBURSE', 'LUNAS', 'PENDING']);
 
-const createTransaksiValidation = [
-  body('nama_transaksi')
+const transaksiBodySchema = z.object({
+  namaTransaksi: z
+    .string()
     .trim()
-    .notEmpty()
-    .withMessage('nama_transaksi wajib diisi')
-    .isLength({ max: 255 })
-    .withMessage('nama_transaksi maksimal 255 karakter'),
-  body('nominal')
-    .notEmpty()
-    .withMessage('nominal wajib diisi')
-    .isFloat({ min: 0 })
-    .withMessage('nominal harus berupa angka yang tidak negatif')
-    .toFloat(),
-  body('jenis_transaksi')
-    .notEmpty()
-    .withMessage('jenis_transaksi wajib diisi')
-    .isIn(allowedJenisTransaksi)
-    .withMessage('jenis_transaksi harus KAS_MASUK atau KAS_KELUAR'),
-  body('status')
-    .notEmpty()
-    .withMessage('status wajib diisi')
-    .isIn(allowedStatus)
-    .withMessage('status harus REIMBURSE, LUNAS, atau PENDING'),
-  body('nama_pihak')
+    .min(1, 'namaTransaksi wajib diisi')
+    .max(255, 'namaTransaksi maksimal 255 karakter'),
+  nominal: z.coerce.number().positive('nominal harus lebih dari 0'),
+  jenisTransaksi: jenisTransaksiEnum,
+  status: statusTransaksiEnum,
+  namaPihak: z
+    .string()
     .trim()
-    .notEmpty()
-    .withMessage('nama_pihak wajib diisi')
-    .isLength({ max: 255 })
-    .withMessage('nama_pihak maksimal 255 karakter'),
-];
+    .min(1, 'namaPihak wajib diisi')
+    .max(255, 'namaPihak maksimal 255 karakter'),
+});
 
-const updateTransaksiValidation = [...createTransaksiValidation];
+const transaksiParamsSchema = z.object({
+  id: z.coerce.number().int().positive('id harus berupa angka positif'),
+});
 
-const idValidation = [
-  param('id')
-    .isInt({ gt: 0 })
-    .withMessage('id harus berupa angka positif')
-    .toInt(),
-];
+const transaksiQuerySchema = z.object({
+  status: statusTransaksiEnum.optional(),
+  jenis: jenisTransaksiEnum.optional(),
+  search: z.string().trim().optional(),
+});
 
-function handleValidation(req, res, next) {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validasi gagal',
-      errors: errors.array(),
-    });
+function formatError(error) {
+  if (error instanceof z.ZodError) {
+    return error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+    }));
   }
 
-  return next();
+  return [{ path: '', message: 'Validasi gagal' }];
+}
+
+function validateRequest(schema, source = 'body') {
+  return (req, res, next) => {
+    const result = schema.safeParse(req[source]);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validasi gagal',
+        errors: formatError(result.error),
+      });
+    }
+
+    req[source] = result.data;
+    return next();
+  };
 }
 
 module.exports = {
-  createTransaksiValidation,
-  updateTransaksiValidation,
-  idValidation,
-  handleValidation,
+  jenisTransaksiEnum,
+  statusTransaksiEnum,
+  transaksiBodySchema,
+  transaksiParamsSchema,
+  transaksiQuerySchema,
+  validateRequest,
 };

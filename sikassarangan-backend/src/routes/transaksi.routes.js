@@ -2,38 +2,34 @@ const express = require('express');
 const controller = require('../controllers/transaksi.controller');
 const { authenticateApiKey } = require('../middleware/auth.middleware');
 const {
-  createTransaksiValidation,
-  updateTransaksiValidation,
-  idValidation,
-  handleValidation,
+  transaksiBodySchema,
+  transaksiParamsSchema,
+  transaksiQuerySchema,
+  validateRequest,
 } = require('../middleware/validate.middleware');
 
 const router = express.Router();
 
 router.get('/summary', controller.getSummary);
-router.get('/', controller.getAllTransaksi);
-router.get('/:id', idValidation, handleValidation, controller.getTransaksiById);
+router.get('/', validateRequest(transaksiQuerySchema, 'query'), controller.getAllTransaksi);
+router.get('/:id', validateRequest(transaksiParamsSchema, 'params'), controller.getTransaksiById);
 router.post(
   '/',
   authenticateApiKey,
-  createTransaksiValidation,
-  handleValidation,
+  validateRequest(transaksiBodySchema, 'body'),
   controller.createTransaksi
 );
 router.put(
   '/:id',
   authenticateApiKey,
-  idValidation,
-  handleValidation,
-  updateTransaksiValidation,
-  handleValidation,
+  validateRequest(transaksiParamsSchema, 'params'),
+  validateRequest(transaksiBodySchema, 'body'),
   controller.updateTransaksi
 );
 router.delete(
   '/:id',
   authenticateApiKey,
-  idValidation,
-  handleValidation,
+  validateRequest(transaksiParamsSchema, 'params'),
   controller.deleteTransaksi
 );
 
