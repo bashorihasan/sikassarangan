@@ -73,3 +73,7 @@ services:
 networks:
   sikassarangan-net:
     name: sikassarangan-net
+
+volumes:
+  sikassarangan_pgdata:
+  sikassarangan_redisdata:
