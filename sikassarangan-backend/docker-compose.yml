@@ -16,6 +16,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - sikassarangan-net
 
   redis:
     image: redis:7-alpine
@@ -31,6 +33,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - sikassarangan-net
 
   api:
     build: .
@@ -46,8 +50,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - sikassarangan-net
 
 
 volumes:
   sikassarangan_pgdata:
   sikassarangan_redisdata:
+
+  networks:
+  sikassarangan-net:
+    name: sikassarangan-net
