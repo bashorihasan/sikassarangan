@@ -2,7 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConfig {
   static String get baseUrl =>
-  dotenv.env['API_BASE_URL'] ?? 'http://158.178.230.62:3001/api';
+  dotenv.env['API_BASE_URL'] ?? 'https://hasan.shosio.com/api';
 
   static String get apiKey => dotenv.env['API_KEY'] ?? '';
 

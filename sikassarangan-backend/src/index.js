@@ -8,7 +8,7 @@ const { prisma, resolveDatabaseUrl } = require('./lib/prisma');
 const { redisClient } = require('./lib/redis');
 
 const app = express();
-const port = Number(process.env.API_PORT || process.env.PORT || 3001);
+const port = Number(process.env.API_PORT || process.env.PORT || 443);
 let server;
 
 async function connectServices() {
