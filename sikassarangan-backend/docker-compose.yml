@@ -4,11 +4,11 @@ services:
     container_name: sikassarangan-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - "127.0.0.1:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - sikassarangan_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -23,13 +23,13 @@ services:
     image: redis:7-alpine
     container_name: sikassarangan-redis
     restart: unless-stopped
-    command: redis-server --save 60 1 --loglevel warning
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "127.0.0.1:6380:6379"
     volumes:
       - sikassarangan_redisdata:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -37,27 +37,37 @@ services:
       - sikassarangan-net
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sikassarangan-backend:latest
     container_name: sikassarangan-api
     restart: unless-stopped
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public
     ports:
-      - "${API_PORT}:3001"
+      - "${API_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=production
+      - APP_NAME=siKasSarangan
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - API_HOST=0.0.0.0
+      - API_PORT=${API_PORT}
+      - API_KEY=${API_KEY}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - sikassarangan-net
 
-
-volumes:
-  sikassarangan_pgdata:
-  sikassarangan_redisdata:
-
 networks:
-  sikassarangan-net:
-    name: sikassarangan-net
