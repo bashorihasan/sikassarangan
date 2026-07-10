@@ -44,7 +44,7 @@ services:
     container_name: sikassarangan-api
     restart: unless-stopped
     ports:
-      - "${API_PORT:-3001}:3001"
+      - "${API_PORT}:3001"
     environment:
       - NODE_ENV=production
       - APP_NAME=siKasSarangan
