@@ -71,3 +71,5 @@ services:
       - sikassarangan-net
 
 networks:
+  sikassarangan-net:
+    name: sikassarangan-net
