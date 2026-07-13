@@ -3,7 +3,11 @@ require('dotenv').config();
 const cors = require('cors');
 const express = require('express');
 
+require('./config/firebase'); // inisialisasi Firebase Admin SDK saat startup
+
 const transaksiRoutes = require('./routes/transaksi.routes');
+const authRoutes = require('./routes/auth.routes');
+const notifikasiRoutes = require('./routes/notifikasi.routes');
 const { prisma, resolveDatabaseUrl } = require('./lib/prisma');
 const { redisClient } = require('./lib/redis');
 
@@ -40,6 +44,8 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/transaksi', transaksiRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/notifikasi', notifikasiRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

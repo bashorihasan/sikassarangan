@@ -2,6 +2,11 @@ const { Prisma } = require('@prisma/client');
 
 const { prisma } = require('../lib/prisma');
 const { redisClient } = require('../lib/redis');
+const { notifyAllUsersInBackground } = require('../utils/notify');
+
+function formatRupiah(value) {
+  return `Rp${toNumber(value).toLocaleString('id-ID')}`;
+}
 
 function toNumber(value) {
   if (value == null) {
@@ -23,17 +28,36 @@ function toNumber(value) {
   return Number(value);
 }
 
+// Dipakai ulang di semua query agar respons selalu menyertakan info penginput transaksi.
+const createdByInclude = {
+  createdBy: {
+    select: { id: true, name: true, email: true },
+  },
+};
+
 function formatTransaksi(transaksi) {
-  return {
+  const formatted = {
     id: transaksi.id,
     nama_transaksi: transaksi.namaTransaksi,
     nominal: toNumber(transaksi.nominal),
     jenis_transaksi: transaksi.jenisTransaksi,
     status: transaksi.status,
     nama_pihak: transaksi.namaPihak,
+    tanggal_transaksi: transaksi.tanggalTransaksi,
+    created_by_id: transaksi.createdById,
     created_at: transaksi.createdAt,
     updated_at: transaksi.updatedAt,
   };
+
+  if (transaksi.createdBy) {
+    formatted.created_by = {
+      id: transaksi.createdBy.id,
+      name: transaksi.createdBy.name,
+      email: transaksi.createdBy.email,
+    };
+  }
+
+  return formatted;
 }
 
 function success(res, data, statusCode = 200) {
@@ -76,7 +100,8 @@ async function getAllTransaksi(req, res) {
 
     const transaksi = await prisma.transaksi.findMany({
       where,
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      include: createdByInclude,
+      orderBy: [{ tanggalTransaksi: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
     });
 
     return success(res, transaksi.map(formatTransaksi));
@@ -91,6 +116,7 @@ async function getTransaksiById(req, res) {
       where: {
         id: req.params.id,
       },
+      include: createdByInclude,
     });
 
     if (!transaksi) {
@@ -112,10 +138,22 @@ async function createTransaksi(req, res) {
         jenisTransaksi: req.body.jenisTransaksi,
         status: req.body.status,
         namaPihak: req.body.namaPihak,
+        tanggalTransaksi: req.body.tanggalTransaksi,
+        // Diambil dari user yang sedang login, bukan dari body request.
+        createdById: req.user.id,
       },
+      include: createdByInclude,
     });
 
     await clearSummaryCache();
+
+    notifyAllUsersInBackground({
+      title: 'Transaksi baru',
+      body: `${transaksi.namaTransaksi} - ${formatRupiah(transaksi.nominal)}`,
+      type: 'TRANSAKSI_BARU',
+      relatedId: transaksi.id,
+      excludeUserId: req.user.id,
+    });
 
     return success(res, formatTransaksi(transaksi), 201);
   } catch (error) {
@@ -145,10 +183,23 @@ async function updateTransaksi(req, res) {
         jenisTransaksi: req.body.jenisTransaksi,
         status: req.body.status,
         namaPihak: req.body.namaPihak,
+        tanggalTransaksi: req.body.tanggalTransaksi,
+        // createdById sengaja TIDAK diubah saat update: field ini mencatat siapa yang
+        // membuat transaksi (audit), jadi penginput asli dipertahankan meski di-edit
+        // oleh user lain.
       },
+      include: createdByInclude,
     });
 
     await clearSummaryCache();
+
+    notifyAllUsersInBackground({
+      title: 'Transaksi diperbarui',
+      body: `${updated.namaTransaksi} - ${formatRupiah(updated.nominal)}`,
+      type: 'TRANSAKSI_UPDATE',
+      relatedId: updated.id,
+      excludeUserId: req.user.id,
+    });
 
     return success(res, formatTransaksi(updated));
   } catch (error) {
@@ -172,9 +223,18 @@ async function deleteTransaksi(req, res) {
       where: {
         id: req.params.id,
       },
+      include: createdByInclude,
     });
 
     await clearSummaryCache();
+
+    notifyAllUsersInBackground({
+      title: 'Transaksi dihapus',
+      body: `${deleted.namaTransaksi} - ${formatRupiah(deleted.nominal)}`,
+      type: 'TRANSAKSI_HAPUS',
+      relatedId: deleted.id,
+      excludeUserId: req.user.id,
+    });
 
     return success(res, formatTransaksi(deleted));
   } catch (error) {

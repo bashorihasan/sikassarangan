@@ -17,6 +17,11 @@ const transaksiBodySchema = z.object({
     .trim()
     .min(1, 'namaPihak wajib diisi')
     .max(255, 'namaPihak maksimal 255 karakter'),
+  // Tanggal transaksi terjadi (diisi manual user). Menerima string tanggal / ISO,
+  // dikoersi jadi Date. createdById TIDAK divalidasi di sini karena diambil dari req.user.
+  tanggalTransaksi: z.coerce.date({
+    errorMap: () => ({ message: 'tanggalTransaksi harus berupa tanggal yang valid' }),
+  }),
 });
 
 const transaksiParamsSchema = z.object({

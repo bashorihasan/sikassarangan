@@ -18,15 +18,64 @@ enum StatusTransaksi {
   PENDING
 }
 
-model Transaksi {
-  id             Int              @id @default(autoincrement())
-  namaTransaksi  String           @db.VarChar(255)
-  nominal        Decimal          @db.Decimal(15, 2)
-  jenisTransaksi JenisTransaksi
-  status         StatusTransaksi
-  namaPihak      String           @db.VarChar(255)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+}
 
+enum NotifikasiType {
+  TRANSAKSI_BARU
+  TRANSAKSI_UPDATE
+  TRANSAKSI_HAPUS
+  UMUM
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  name         String
+  password     String? // nullable, karena user yang login via Google tidak punya password
+  firebaseUid  String?      @unique // UID dari Firebase Authentication
+  authProvider AuthProvider @default(EMAIL)
+  fcmToken     String? // token device untuk push notification, bisa null kalau belum login
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  transaksi    Transaksi[]
+  notifikasi   Notifikasi[]
+
+  @@map("users")
+}
+
+model Transaksi {
+  id               Int             @id @default(autoincrement())
+  namaTransaksi    String          @db.VarChar(255)
+  nominal          Decimal         @db.Decimal(15, 2)
+  jenisTransaksi   JenisTransaksi
+  status           StatusTransaksi
+  namaPihak        String          @db.VarChar(255)
+  tanggalTransaksi DateTime        @default(now()) // tanggal transaksi terjadi (diisi manual user), default now() untuk kompatibilitas data lama
+  createdById      Int // FK ke User.id — siapa yang menginput transaksi
+  createdBy        User            @relation(fields: [createdById], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([createdById])
+  @@index([tanggalTransaksi])
   @@map("transaksi")
+}
+
+model Notifikasi {
+  id        Int            @id @default(autoincrement())
+  userId    Int
+  user      User           @relation(fields: [userId], references: [id])
+  title     String
+  body      String
+  type      NotifikasiType @default(TRANSAKSI_BARU)
+  relatedId Int? // id transaksi terkait, kalau notifikasi soal transaksi
+  isRead    Boolean        @default(false)
+  createdAt DateTime       @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifikasi")
 }

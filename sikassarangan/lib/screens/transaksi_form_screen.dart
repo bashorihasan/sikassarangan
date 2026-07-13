@@ -21,11 +21,15 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
   final _namaTransaksiController = TextEditingController();
   final _nominalController = TextEditingController();
   final _namaPihakController = TextEditingController();
+  final _tanggalController = TextEditingController();
 
   String _jenisTransaksi = 'KAS_MASUK';
   String _status = 'PENDING';
+  DateTime _tanggalTransaksi = DateTime.now();
 
   bool get _isEdit => widget.transaksi != null;
+
+  static final _tanggalFormat = DateFormat('dd MMMM yyyy', 'id_ID');
 
   @override
   void initState() {
@@ -38,7 +42,9 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
       _namaPihakController.text = transaksi.namaPihak;
       _jenisTransaksi = transaksi.jenisTransaksi;
       _status = transaksi.status;
+      _tanggalTransaksi = transaksi.tanggalTransaksi;
     }
+    _tanggalController.text = _tanggalFormat.format(_tanggalTransaksi);
   }
 
   @override
@@ -46,6 +52,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
     _namaTransaksiController.dispose();
     _nominalController.dispose();
     _namaPihakController.dispose();
+    _tanggalController.dispose();
     super.dispose();
   }
 
@@ -116,6 +123,24 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
                     final nominal = _parseNominal(value);
                     if (nominal <= 0) {
                       return 'Nominal harus lebih dari 0';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _tanggalController,
+                  readOnly: true,
+                  onTap: _pickTanggal,
+                  decoration: const InputDecoration(
+                    labelText: 'Tanggal Transaksi',
+                    hintText: 'Pilih tanggal transaksi',
+                    helperText: 'Tanggal transaksi benar-benar terjadi',
+                    suffixIcon: Icon(Icons.calendar_today_outlined),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Tanggal transaksi wajib diisi';
                     }
                     return null;
                   },
@@ -218,6 +243,26 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
     return null;
   }
 
+  Future<void> _pickTanggal() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _tanggalTransaksi,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(now.year + 1, 12, 31),
+    );
+
+    if (picked == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      // Simpan tanggalnya saja (tanpa komponen jam) supaya konsisten.
+      _tanggalTransaksi = DateTime(picked.year, picked.month, picked.day);
+      _tanggalController.text = _tanggalFormat.format(_tanggalTransaksi);
+    });
+  }
+
   double _parseNominal(String value) {
     final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
     return double.tryParse(digits) ?? 0;
@@ -239,6 +284,7 @@ class _TransaksiFormScreenState extends State<TransaksiFormScreen> {
       jenisTransaksi: _jenisTransaksi,
       status: _status,
       namaPihak: _namaPihakController.text.trim(),
+      tanggalTransaksi: _tanggalTransaksi,
       createdAt: widget.transaksi?.createdAt,
     );
 

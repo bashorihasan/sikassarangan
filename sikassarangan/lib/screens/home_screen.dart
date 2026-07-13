@@ -1,22 +1,97 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/auth_provider.dart';
+import '../providers/notifikasi_provider.dart';
 import '../providers/transaksi_provider.dart';
+import '../services/push_notification_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/transaksi_card.dart';
+import 'notifikasi_screen.dart';
 import 'transaksi_detail_screen.dart';
 import 'transaksi_form_screen.dart';
 import 'transaksi_list_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  static const String _displayName = 'Panitia Hari Besar Nasional';
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  StreamSubscription? _pushSub;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TransaksiProvider>().loadDashboard();
+      context.read<NotifikasiProvider>().loadUnreadCount();
+    });
+
+    // Setiap push masuk (foreground / tap), segarkan daftar & unread count.
+    _pushSub = PushNotificationService.instance.onMessage.listen((_) {
+      if (!mounted) {
+        return;
+      }
+      context.read<NotifikasiProvider>().refresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pushSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _openNotifikasi() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NotifikasiScreen()),
+    );
+    if (mounted) {
+      // Segarkan badge setelah kembali dari layar notifikasi.
+      context.read<NotifikasiProvider>().loadUnreadCount();
+    }
+  }
+
+  Future<void> _confirmLogout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar?'),
+        content: const Text('Anda akan keluar dari akun ini.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !mounted) {
+      return;
+    }
+
+    // Bersihkan data lokal lalu sign-out; AuthGate akan pindah ke LoginScreen.
+    context.read<NotifikasiProvider>().reset();
+    await context.read<AuthProvider>().signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TransaksiProvider>();
+    final auth = context.watch<AuthProvider>();
+    final displayName = auth.appUser?.name ?? 'Pengguna';
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -34,6 +109,7 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: AppColors.surfaceWhite,
           onRefresh: () async {
             await context.read<TransaksiProvider>().loadDashboard();
+            await context.read<NotifikasiProvider>().loadUnreadCount();
             if (context.mounted && provider.errorMessage.isNotEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(provider.errorMessage)),
@@ -49,8 +125,8 @@ class HomeScreen extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           'Selamat datang,',
                           style: TextStyle(
                             color: AppColors.textSecondaryBrown,
@@ -58,10 +134,12 @@ class HomeScreen extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          _displayName,
-                          style: TextStyle(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             color: AppColors.primaryBrown,
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -70,17 +148,79 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primaryBrown,
-                      shape: BoxShape.circle,
+                  Consumer<NotifikasiProvider>(
+                    builder: (context, notif, _) => Badge(
+                      isLabelVisible: notif.unreadCount > 0,
+                      backgroundColor: AppColors.cashOutRed,
+                      textColor: AppColors.textOnBrown,
+                      label: Text(
+                        notif.unreadCount > 99 ? '99+' : '${notif.unreadCount}',
+                      ),
+                      offset: const Offset(-4, 4),
+                      child: IconButton(
+                        onPressed: _openNotifikasi,
+                        icon: const Icon(
+                          Icons.notifications_outlined,
+                          color: AppColors.primaryBrown,
+                        ),
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      color: AppColors.accentGold,
-                      size: 24,
+                  ),
+                  const SizedBox(width: 4),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'logout') {
+                        _confirmLogout();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem<String>(
+                        enabled: false,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: const TextStyle(
+                                color: AppColors.textCardTitle,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (auth.appUser?.email != null)
+                              Text(
+                                auth.appUser!.email,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondaryBrown,
+                                  fontSize: 12,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      const PopupMenuItem<String>(
+                        value: 'logout',
+                        child: Row(
+                          children: [
+                            Icon(Icons.logout, size: 20, color: AppColors.cashOutRed),
+                            SizedBox(width: 10),
+                            Text('Keluar'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryBrown,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        color: AppColors.accentGold,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ],
@@ -142,7 +282,7 @@ class HomeScreen extends StatelessWidget {
                             if (transaksi.id == null) {
                               return;
                             }
-        
+
                             await Navigator.push(
                               context,
                               MaterialPageRoute(

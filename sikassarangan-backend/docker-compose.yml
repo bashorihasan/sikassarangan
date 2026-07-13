@@ -45,6 +45,9 @@ services:
     restart: unless-stopped
     ports:
       - "443:443"
+      # Tunnel cloudflared (hasan.shosio.com) diarahkan ke http://localhost:3001,
+      # jadi backend juga dipublish di loopback:3001 -> container:443.
+      - "127.0.0.1:3001:443"
     environment:
       - NODE_ENV=production
       - APP_NAME=siKasSarangan
@@ -56,6 +59,8 @@ services:
       - API_PORT=${API_PORT}
       - API_KEY=${API_KEY}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - DEFAULT_USER_ID=${DEFAULT_USER_ID:-1}
+      - FIREBASE_SERVICE_ACCOUNT_BASE64=${FIREBASE_SERVICE_ACCOUNT_BASE64:-}
     depends_on:
       db:
         condition: service_healthy

@@ -1,6 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/transaksi.controller');
-const { authenticateApiKey } = require('../middleware/auth.middleware');
+const { firebaseAuth } = require('../middleware/firebaseAuth.middleware');
 const {
   transaksiBodySchema,
   transaksiParamsSchema,
@@ -10,25 +10,26 @@ const {
 
 const router = express.Router();
 
+// Semua endpoint transaksi wajib login (Firebase ID token). req.user diisi oleh
+// firebaseAuth, dan createdById transaksi diambil dari req.user.id.
+router.use(firebaseAuth);
+
 router.get('/summary', controller.getSummary);
 router.get('/', validateRequest(transaksiQuerySchema, 'query'), controller.getAllTransaksi);
 router.get('/:id', validateRequest(transaksiParamsSchema, 'params'), controller.getTransaksiById);
 router.post(
   '/',
-  authenticateApiKey,
   validateRequest(transaksiBodySchema, 'body'),
   controller.createTransaksi
 );
 router.put(
   '/:id',
-  authenticateApiKey,
   validateRequest(transaksiParamsSchema, 'params'),
   validateRequest(transaksiBodySchema, 'body'),
   controller.updateTransaksi
 );
 router.delete(
   '/:id',
-  authenticateApiKey,
   validateRequest(transaksiParamsSchema, 'params'),
   controller.deleteTransaksi
 );

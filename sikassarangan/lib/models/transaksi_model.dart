@@ -6,6 +6,10 @@ class Transaksi {
     required this.jenisTransaksi,
     required this.status,
     required this.namaPihak,
+    required this.tanggalTransaksi,
+    this.createdById,
+    this.createdByName,
+    this.createdByEmail,
     this.createdAt,
   });
 
@@ -15,6 +19,17 @@ class Transaksi {
   final String jenisTransaksi;
   final String status;
   final String namaPihak;
+
+  /// Tanggal transaksi terjadi (diisi manual oleh user), bisa berbeda dari
+  /// [createdAt] yaitu waktu data diinput ke sistem.
+  final DateTime tanggalTransaksi;
+
+  /// Info penginput transaksi (read-only, tidak dikirim saat create/update —
+  /// backend mengisi createdById otomatis dari user yang sedang login).
+  final int? createdById;
+  final String? createdByName;
+  final String? createdByEmail;
+
   final DateTime? createdAt;
 
   bool get isKasMasuk => jenisTransaksi == 'KAS_MASUK';
@@ -22,6 +37,8 @@ class Transaksi {
   bool get isKasKeluar => jenisTransaksi == 'KAS_KELUAR';
 
   factory Transaksi.fromJson(Map<String, dynamic> json) {
+    final createdBy = json['created_by'];
+
     return Transaksi(
       id: _parseInt(json['id']),
       namaTransaksi: (json['nama_transaksi'] ?? '').toString(),
@@ -29,17 +46,31 @@ class Transaksi {
       jenisTransaksi: (json['jenis_transaksi'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       namaPihak: (json['nama_pihak'] ?? '').toString(),
+      tanggalTransaksi: _parseDateTime(json['tanggal_transaksi']) ??
+          _parseDateTime(json['created_at']) ??
+          DateTime.now(),
+      createdById: _parseInt(json['created_by_id']),
+      createdByName: createdBy is Map<String, dynamic>
+          ? createdBy['name']?.toString()
+          : null,
+      createdByEmail: createdBy is Map<String, dynamic>
+          ? createdBy['email']?.toString()
+          : null,
       createdAt: _parseDateTime(json['created_at']),
     );
   }
 
+  /// Payload untuk create/update. Backend memvalidasi body dalam camelCase
+  /// (namaTransaksi, jenisTransaksi, dst) dan mengisi createdById sendiri dari
+  /// user yang login, jadi field itu TIDAK disertakan di sini.
   Map<String, dynamic> toJson() {
     return {
-      'nama_transaksi': namaTransaksi,
+      'namaTransaksi': namaTransaksi,
       'nominal': nominal,
-      'jenis_transaksi': jenisTransaksi,
+      'jenisTransaksi': jenisTransaksi,
       'status': status,
-      'nama_pihak': namaPihak,
+      'namaPihak': namaPihak,
+      'tanggalTransaksi': _dateOnly(tanggalTransaksi),
     };
   }
 
@@ -50,6 +81,10 @@ class Transaksi {
     String? jenisTransaksi,
     String? status,
     String? namaPihak,
+    DateTime? tanggalTransaksi,
+    int? createdById,
+    String? createdByName,
+    String? createdByEmail,
     DateTime? createdAt,
   }) {
     return Transaksi(
@@ -59,6 +94,10 @@ class Transaksi {
       jenisTransaksi: jenisTransaksi ?? this.jenisTransaksi,
       status: status ?? this.status,
       namaPihak: namaPihak ?? this.namaPihak,
+      tanggalTransaksi: tanggalTransaksi ?? this.tanggalTransaksi,
+      createdById: createdById ?? this.createdById,
+      createdByName: createdByName ?? this.createdByName,
+      createdByEmail: createdByEmail ?? this.createdByEmail,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -85,5 +124,12 @@ class Transaksi {
     }
 
     return DateTime.tryParse(value.toString());
+  }
+
+  /// Serialisasi tanggal saja (yyyy-MM-dd) supaya tidak tergeser oleh zona waktu.
+  static String _dateOnly(DateTime value) {
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '${value.year}-$month-$day';
   }
 }

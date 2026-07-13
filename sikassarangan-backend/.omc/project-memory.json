@@ -1,0 +1,278 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1783764744528,
+  "projectRoot": "/home/otoritech/workspaces/hasan/sikassarangan/sikassarangan-backend",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "express",
+        "version": "4.21.2",
+        "category": "backend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "start": "node src/index.js",
+      "dev": "node src/index.js",
+      "prisma:generate": "prisma generate",
+      "prisma:migrate:dev": "prisma migrate dev",
+      "prisma:migrate:deploy": "prisma migrate deploy"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "prisma": {
+      "path": "prisma",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1783764744500,
+      "keyFiles": [
+        "schema.prisma"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 1,
+      "lastAccessed": 1783764744502,
+      "keyFiles": [
+        "index.js"
+      ]
+    },
+    "prisma/migrations": {
+      "path": "prisma/migrations",
+      "purpose": "Database migrations",
+      "fileCount": 0,
+      "lastAccessed": 1783764744515,
+      "keyFiles": []
+    },
+    "src/config": {
+      "path": "src/config",
+      "purpose": "Configuration files",
+      "fileCount": 1,
+      "lastAccessed": 1783764744520,
+      "keyFiles": [
+        "db.js"
+      ]
+    },
+    "src/controllers": {
+      "path": "src/controllers",
+      "purpose": "Controllers",
+      "fileCount": 1,
+      "lastAccessed": 1783764744522,
+      "keyFiles": [
+        "transaksi.controller.js"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 2,
+      "lastAccessed": 1783764744525,
+      "keyFiles": [
+        "prisma.js",
+        "redis.js"
+      ]
+    },
+    "src/middleware": {
+      "path": "src/middleware",
+      "purpose": "Middleware",
+      "fileCount": 2,
+      "lastAccessed": 1783764744525,
+      "keyFiles": [
+        "auth.middleware.js",
+        "validate.middleware.js"
+      ]
+    },
+    "src/routes": {
+      "path": "src/routes",
+      "purpose": "Route handlers",
+      "fileCount": 1,
+      "lastAccessed": 1783764744525,
+      "keyFiles": [
+        "transaksi.routes.js"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/controllers/transaksi.controller.js",
+      "accessCount": 14,
+      "lastAccessed": 1783791256591,
+      "type": "file"
+    },
+    {
+      "path": "src/routes/transaksi.routes.js",
+      "accessCount": 6,
+      "lastAccessed": 1783791270934,
+      "type": "file"
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "accessCount": 5,
+      "lastAccessed": 1783791085258,
+      "type": "file"
+    },
+    {
+      "path": "docker-compose.yml",
+      "accessCount": 4,
+      "lastAccessed": 1783791331217,
+      "type": "file"
+    },
+    {
+      "path": "src/middleware/validate.middleware.js",
+      "accessCount": 3,
+      "lastAccessed": 1783787861087,
+      "type": "file"
+    },
+    {
+      "path": "src/index.js",
+      "accessCount": 3,
+      "lastAccessed": 1783791291376,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 3,
+      "lastAccessed": 1783791320546,
+      "type": "file"
+    },
+    {
+      "path": ".env",
+      "accessCount": 3,
+      "lastAccessed": 1783791323381,
+      "type": "file"
+    },
+    {
+      "path": "src/middleware/firebaseAuth.middleware.js",
+      "accessCount": 3,
+      "lastAccessed": 1783791420953,
+      "type": "file"
+    },
+    {
+      "path": "src/utils/notify.js",
+      "accessCount": 3,
+      "lastAccessed": 1783791429339,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 2,
+      "lastAccessed": 1783787828577,
+      "type": "file"
+    },
+    {
+      "path": "src/middleware/auth.middleware.js",
+      "accessCount": 2,
+      "lastAccessed": 1783787873056,
+      "type": "file"
+    },
+    {
+      "path": "src/config/firebase.js",
+      "accessCount": 2,
+      "lastAccessed": 1783791411927,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/prisma.js",
+      "accessCount": 1,
+      "lastAccessed": 1783787564319,
+      "type": "file"
+    },
+    {
+      "path": "prisma/migrations/20260709120000_init/migration.sql",
+      "accessCount": 1,
+      "lastAccessed": 1783787564963,
+      "type": "file"
+    },
+    {
+      "path": "prisma/migrations/20260711093000_add_tanggal_transaksi_and_user_model/migration.sql",
+      "accessCount": 1,
+      "lastAccessed": 1783787796162,
+      "type": "file"
+    },
+    {
+      "path": "prisma/seed.js",
+      "accessCount": 1,
+      "lastAccessed": 1783787816547,
+      "type": "file"
+    },
+    {
+      "path": "Dockerfile",
+      "accessCount": 1,
+      "lastAccessed": 1783788760653,
+      "type": "file"
+    },
+    {
+      "path": ".dockerignore",
+      "accessCount": 1,
+      "lastAccessed": 1783788761170,
+      "type": "file"
+    },
+    {
+      "path": "src/controllers/auth.controller.js",
+      "accessCount": 1,
+      "lastAccessed": 1783791167487,
+      "type": "file"
+    },
+    {
+      "path": "src/routes/auth.routes.js",
+      "accessCount": 1,
+      "lastAccessed": 1783791173809,
+      "type": "file"
+    },
+    {
+      "path": "src/controllers/notifikasi.controller.js",
+      "accessCount": 1,
+      "lastAccessed": 1783791204854,
+      "type": "file"
+    },
+    {
+      "path": "src/routes/notifikasi.routes.js",
+      "accessCount": 1,
+      "lastAccessed": 1783791213474,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/redis.js",
+      "accessCount": 1,
+      "lastAccessed": 1783791558193,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

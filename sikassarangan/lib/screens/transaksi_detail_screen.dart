@@ -142,8 +142,16 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
                   title: 'Detail Lengkap',
                   children: [
                     _InfoRow(label: 'Nama Pihak', value: transaksi.namaPihak),
+                    _InfoRow(
+                      label: 'Tanggal Transaksi',
+                      value: _formatTanggal(transaksi.tanggalTransaksi),
+                    ),
+                    _InfoRow(
+                      label: 'Diinput oleh',
+                      value: transaksi.createdByName ?? '-',
+                    ),
                     _InfoRow(label: 'ID', value: transaksi.id?.toString() ?? '-'),
-                    _InfoRow(label: 'Dibuat', value: _formatDate(transaksi.createdAt)),
+                    _InfoRow(label: 'Diinput pada', value: _formatDate(transaksi.createdAt)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -292,6 +300,10 @@ class _TransaksiDetailScreenState extends State<TransaksiDetailScreen> {
     }
 
     return DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(dateTime.toLocal());
+  }
+
+  String _formatTanggal(DateTime dateTime) {
+    return DateFormat('dd MMMM yyyy', 'id_ID').format(dateTime.toLocal());
   }
 }
 

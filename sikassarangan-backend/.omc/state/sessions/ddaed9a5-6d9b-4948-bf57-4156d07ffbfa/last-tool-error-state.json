@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"kill -9 1019858 2>/dev/null || true\\npkill -9 -f 'node src/index.js' 2>/dev/null || true\\npgrep -af 'node src/index.js' >/dev/null && echo \\\"still running\\\" || echo \\\"all node index proces...",
+  "error": "Exit code 1",
+  "timestamp": "2026-07-11T17:41:18.792Z",
+  "retry_count": 5
+}

@@ -18,6 +18,8 @@ class AppColors {
   static const Color lunasText = Color(0xFF2F6B45);
   static const Color pendingBackground = Color(0xFFE6D9C3);
   static const Color pendingText = Color(0xFF6B5A3D);
+  // Latar item notifikasi yang belum dibaca (tint gold sangat muda).
+  static const Color unreadTint = Color(0xFFFBF6E8);
 }
 
 class AppTheme {

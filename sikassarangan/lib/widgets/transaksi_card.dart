@@ -23,6 +23,8 @@ class TransaksiCard extends StatelessWidget {
     decimalDigits: 0,
   );
 
+  static final _dateFormat = DateFormat('dd MMM yyyy', 'id_ID');
+
   @override
   Widget build(BuildContext context) {
     final amountColor = transaksi.isKasMasuk
@@ -74,6 +76,26 @@ class TransaksiCard extends StatelessWidget {
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                       ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.event_outlined,
+                          size: 13,
+                          color: AppColors.textSecondaryBrown,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _dateFormat.format(transaksi.tanggalTransaksi.toLocal()),
+                          style: const TextStyle(
+                            color: AppColors.textSecondaryBrown,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Wrap(
