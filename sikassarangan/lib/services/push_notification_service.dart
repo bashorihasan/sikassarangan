@@ -45,18 +45,21 @@ class PushNotificationService {
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const darwinInit = DarwinInitializationSettings();
-    const initSettings =
-        InitializationSettings(android: androidInit, iOS: darwinInit);
+    const initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: darwinInit,
+    );
 
     await _local.initialize(
-      initSettings,
+      settings:  initSettings,
       onDidReceiveNotificationResponse: (response) =>
           _handleTapPayload(response.payload),
     );
 
     await _local
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(_channel);
 
     // Foreground: tampilkan sendiri lewat local notification + pancarkan event.
@@ -78,7 +81,8 @@ class PushNotificationService {
     await _messaging.requestPermission(alert: true, badge: true, sound: true);
     await _local
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.requestNotificationsPermission();
   }
 
@@ -95,10 +99,10 @@ class PushNotificationService {
     }
 
     _local.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
+      id: notification.hashCode,
+      title: notification.title,
+      body: notification.body,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _channel.id,
           _channel.name,
@@ -130,8 +134,6 @@ class PushNotificationService {
     if (navigator == null) {
       return;
     }
-    navigator.push(
-      MaterialPageRoute(builder: (_) => const NotifikasiScreen()),
-    );
+    navigator.push(MaterialPageRoute(builder: (_) => const NotifikasiScreen()));
   }
 }

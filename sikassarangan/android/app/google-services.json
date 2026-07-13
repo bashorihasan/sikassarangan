@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "81038195391",
+    "project_id": "sikas-sarangan",
+    "storage_bucket": "sikas-sarangan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81038195391:android:0f2394bcdfce6f48eda40a",
+        "android_client_info": {
+          "package_name": "sikassarangan.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "81038195391-b2tqn7gthmjl9v8ggea202g3pgumhnco.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVrZZUY5vfo1DKbQlSIPiM_P3EXOBgpkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "81038195391-b2tqn7gthmjl9v8ggea202g3pgumhnco.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
