@@ -9,3 +9,4 @@ build/
 .env
 prisma/migrations/*/migration.sql.tmp
 .DS_Store
+sikas-sarangan-firebase-adminsdk-fbsvc-4fa91c4d6d.json

@@ -10,11 +10,9 @@ import '../services/auth_service.dart';
 import '../services/push_notification_service.dart';
 
 class AuthProvider extends ChangeNotifier {
-  AuthProvider({
-    AuthService? authService,
-    AuthApiService? authApi,
-  })  : _authService = authService ?? AuthService(),
-        _authApi = authApi ?? AuthApiService() {
+  AuthProvider({AuthService? authService, AuthApiService? authApi})
+    : _authService = authService ?? AuthService(),
+      _authApi = authApi ?? AuthApiService() {
     _authSub = _authService.authStateChanges().listen(_onAuthStateChanged);
   }
 
@@ -34,6 +32,15 @@ class AuthProvider extends ChangeNotifier {
   bool get isSyncing => _isSyncing;
   String get errorMessage => _errorMessage;
   bool get isSignedIn => _authService.currentUser != null;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  Future<void> _ensureInitialized() async {
+    await _googleSignIn.initialize(
+      serverClientId:
+          '81038195391-b2tqn7gthmjl9v8ggea202g3pgumhnco.apps.googleusercontent.com',
+    );
+  }
 
   Future<void> _onAuthStateChanged(User? user) async {
     if (user == null) {
@@ -82,20 +89,34 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> signInWithEmail(String email, String password) {
-    return _run(() =>
-        _authService.signInWithEmail(email: email, password: password));
+    return _run(
+      () => _authService.signInWithEmail(email: email, password: password),
+    );
   }
 
   Future<bool> registerWithEmail(String name, String email, String password) {
-    return _run(() => _authService.registerWithEmail(
-          name: name,
-          email: email,
-          password: password,
-        ));
+    return _run(
+      () => _authService.registerWithEmail(
+        name: name,
+        email: email,
+        password: password,
+      ),
+    );
   }
 
-  Future<bool> signInWithGoogle() {
-    return _run(() => _authService.signInWithGoogle());
+  Future<UserCredential?> signInWithGoogle() async {
+    await _ensureInitialized();
+    final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+
+    final idToken = googleUser.authentication.idToken;
+    final authorization = await googleUser.authorizationClient
+        .authorizationForScopes(['email', 'profile']);
+
+    final credential = GoogleAuthProvider.credential(
+      idToken: idToken,
+      accessToken: authorization?.accessToken,
+    );
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   Future<bool> _run(Future<Object?> Function() action) async {

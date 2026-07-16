@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _googleSignIn() async {
     final auth = context.read<AuthProvider>();
-    final ok = await auth.signInWithGoogle();
+    final bool ok = (await auth.signInWithGoogle()) != null;
     _showErrorIfAny(ok, auth);
   }
 
