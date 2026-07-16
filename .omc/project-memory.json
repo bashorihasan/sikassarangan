@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1783787520097,
+  "lastScanned": 1784179206920,
   "projectRoot": "/home/otoritech/workspaces/hasan/sikassarangan",
   "techStack": {
     "languages": [],
@@ -36,7 +36,7 @@
       "path": "sikassarangan",
       "purpose": null,
       "fileCount": 8,
-      "lastAccessed": 1783787520082,
+      "lastAccessed": 1784179206900,
       "keyFiles": [
         "README.md",
         "analysis_options.yaml",
@@ -49,7 +49,7 @@
       "path": "sikassarangan-backend",
       "purpose": null,
       "fileCount": 9,
-      "lastAccessed": 1783787520086,
+      "lastAccessed": 1784179206908,
       "keyFiles": [
         "Dockerfile",
         "README.md",
@@ -62,7 +62,7 @@
       "path": "sikassarangan/lib",
       "purpose": "Library code",
       "fileCount": 1,
-      "lastAccessed": 1783787520092,
+      "lastAccessed": 1784179206916,
       "keyFiles": [
         "main.dart"
       ]
@@ -71,165 +71,69 @@
       "path": "sikassarangan-backend/node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1783787520095,
+      "lastAccessed": 1784179206918,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "sikassarangan/lib/screens/transaksi_form_screen.dart",
-      "accessCount": 9,
-      "lastAccessed": 1783789564937,
+      "path": "sikassarangan/lib/services/push_notification_service.dart",
+      "accessCount": 4,
+      "lastAccessed": 1784188769908,
       "type": "file"
     },
     {
-      "path": "sikassarangan/lib/screens/transaksi_detail_screen.dart",
+      "path": "sikassarangan-backend/src/utils/notify.js",
       "accessCount": 3,
-      "lastAccessed": 1783789497881,
+      "lastAccessed": 1784188770277,
       "type": "file"
     },
     {
-      "path": "sikassarangan/lib/widgets/transaksi_card.dart",
-      "accessCount": 3,
-      "lastAccessed": 1783789516306,
+      "path": "sikassarangan/android/app/src/main/kotlin/sikassarangan/app/MainActivity.kt",
+      "accessCount": 2,
+      "lastAccessed": 1784180673426,
+      "type": "file"
+    },
+    {
+      "path": "sikassarangan/android/key.properties",
+      "accessCount": 2,
+      "lastAccessed": 1784182655889,
       "type": "file"
     },
     {
       "path": "sikassarangan/android/app/src/main/AndroidManifest.xml",
-      "accessCount": 3,
-      "lastAccessed": 1783793351043,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/providers/notifikasi_provider.dart",
-      "accessCount": 3,
-      "lastAccessed": 1783793459402,
+      "accessCount": 2,
+      "lastAccessed": 1784188765678,
       "type": "file"
     },
     {
       "path": "sikassarangan/lib/main.dart",
-      "accessCount": 3,
-      "lastAccessed": 1783793628833,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/screens/home_screen.dart",
-      "accessCount": 3,
-      "lastAccessed": 1783793673838,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/models/transaksi_model.dart",
-      "accessCount": 2,
-      "lastAccessed": 1783789357285,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/test/widget_test.dart",
-      "accessCount": 2,
-      "lastAccessed": 1783792885449,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/android/settings.gradle.kts",
-      "accessCount": 2,
-      "lastAccessed": 1783793315753,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/providers/auth_provider.dart",
-      "accessCount": 2,
-      "lastAccessed": 1783793419025,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/services/notifikasi_service.dart",
-      "accessCount": 2,
-      "lastAccessed": 1783793435144,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/pubspec.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1783793743132,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan-backend/prisma/schema.prisma",
       "accessCount": 1,
-      "lastAccessed": 1783787551184,
+      "lastAccessed": 1784179348311,
       "type": "file"
     },
     {
-      "path": "sikassarangan/lib/services/transaksi_service.dart",
+      "path": "sikassarangan/lib/config/firebase_options.dart",
       "accessCount": 1,
-      "lastAccessed": 1783789134909,
+      "lastAccessed": 1784179386705,
       "type": "file"
     },
     {
-      "path": "sikassarangan/lib/providers/transaksi_provider.dart",
+      "path": "sikassarangan/android/app/proguard-rules.pro",
       "accessCount": 1,
-      "lastAccessed": 1783789136060,
+      "lastAccessed": 1784180686986,
       "type": "file"
     },
     {
-      "path": "sikassarangan/lib/config/api_config.dart",
+      "path": "sikassarangan-backend/docker-compose.yml",
       "accessCount": 1,
-      "lastAccessed": 1783789142073,
+      "lastAccessed": 1784180691995,
       "type": "file"
     },
     {
-      "path": "sikassarangan/.env",
+      "path": "sikassarangan-backend/src/controllers/transaksi.controller.js",
       "accessCount": 1,
-      "lastAccessed": 1783789813389,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan-backend/.env",
-      "accessCount": 1,
-      "lastAccessed": 1783789814984,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/theme/app_theme.dart",
-      "accessCount": 1,
-      "lastAccessed": 1783793309252,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/services/push_notification_service.dart",
-      "accessCount": 1,
-      "lastAccessed": 1783793390075,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/screens/auth/login_screen.dart",
-      "accessCount": 1,
-      "lastAccessed": 1783793531304,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/screens/auth/register_screen.dart",
-      "accessCount": 1,
-      "lastAccessed": 1783793557803,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/widgets/auth_gate.dart",
-      "accessCount": 1,
-      "lastAccessed": 1783793563414,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/widgets/notifikasi_card.dart",
-      "accessCount": 1,
-      "lastAccessed": 1783793594245,
-      "type": "file"
-    },
-    {
-      "path": "sikassarangan/lib/screens/notifikasi_screen.dart",
-      "accessCount": 1,
-      "lastAccessed": 1783793612321,
+      "lastAccessed": 1784188287502,
       "type": "file"
     }
   ],

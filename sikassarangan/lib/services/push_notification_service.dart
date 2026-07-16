@@ -34,6 +34,7 @@ class PushNotificationService {
     'Notifikasi siKasSarangan',
     description: 'Notifikasi transaksi & pengumuman kas',
     importance: Importance.high,
+    playSound: true,
   );
 
   Future<void> initialize(GlobalKey<NavigatorState> navigatorKey) async {
@@ -109,6 +110,7 @@ class PushNotificationService {
           channelDescription: _channel.description,
           importance: Importance.high,
           priority: Priority.high,
+          playSound: true,
           icon: '@drawable/ic_notification',
         ),
         iOS: const DarwinNotificationDetails(),

@@ -101,6 +101,15 @@ async function notifyAllUsers({
         tokens: batch,
         notification: { title, body },
         data,
+        android: {
+          priority: 'high',
+          notification: {
+            channelId: 'sikassarangan_default',
+            priority: 'high',
+            sound: 'default',
+            defaultSound: true,
+          },
+        },
       });
       await cleanupInvalidTokens(batch, response);
     } catch (error) {

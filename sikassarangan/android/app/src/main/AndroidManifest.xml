@@ -45,7 +45,7 @@
             android:resource="@color/notification_gold" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="sikassarangan_channel" />
+            android:value="sikassarangan_default" />
 
     </application>
 
