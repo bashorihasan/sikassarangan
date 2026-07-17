@@ -13,7 +13,7 @@ import 'providers/transaksi_provider.dart';
 import 'services/push_notification_service.dart';
 import 'services/transaksi_service.dart';
 import 'theme/app_theme.dart';
-import 'widgets/auth_gate.dart';
+import 'screens/splash_screen.dart';
 
 // Navigator global agar push notification bisa navigasi tanpa BuildContext.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -29,12 +29,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   await initializeDateFormatting('id_ID', null);
-  timeago.setLocaleMessages('id', timeago.IdMessages());
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+  );
   await PushNotificationService.instance.initialize(navigatorKey);
-
   runApp(const SiKasSaranganApp());
 }
 
@@ -54,7 +53,7 @@ class SiKasSaranganApp extends StatelessWidget {
         title: 'siKasSarangan',
         theme: AppTheme.lightTheme,
         navigatorKey: navigatorKey,
-        home: const AuthGate(),
+        home: const SplashScreen(),
       ),
     );
   }
